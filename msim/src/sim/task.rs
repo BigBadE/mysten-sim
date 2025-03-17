@@ -27,7 +27,7 @@ use std::{
     task::{Context, Poll, Waker},
     time::Duration,
 };
-
+use lazy_static::lazy_static;
 use tracing::{error_span, info, trace, warn, Span};
 
 pub use tokio::msim_adapter::{join_error, runtime_task};
@@ -914,6 +914,10 @@ impl TaskHandle {
     }
 }
 
+lazy_static! {
+    pub static ref LOGGER: Mutex<Vec<u64>> = Mutex::default();
+}
+
 #[derive(Clone)]
 pub(crate) struct TaskNodeHandle {
     sender: mpsc::Sender<(Runnable, Arc<TaskInfo>)>,
@@ -953,6 +957,9 @@ impl TaskNodeHandle {
         F: Future + 'static,
         F::Output: 'static,
     {
+        LOGGER.lock().unwrap().push(self.info.task_id.0);
+        println!("Started task {}", self.info.task_id.0);
+
         let sender = self.sender.clone();
         // bz: we copy self.info and increment task id, because we need the channel of killed
         let handle = runtime::Handle::current();
