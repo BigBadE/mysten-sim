@@ -964,7 +964,7 @@ impl TaskNodeHandle {
         F::Output: 'static,
     {
         LOGGER.lock().unwrap().push(self.info.task_id.0);
-        println!("Started task {}", self.info.task_id.0);
+        println!("Started task {} ({}) for node {}", LOGGER.lock().unwrap().len(), self.info.task_id.0, self.info.inner.node);
 
         let sender = self.sender.clone();
         // bz: we copy self.info and increment task id, because we need the channel of killed
